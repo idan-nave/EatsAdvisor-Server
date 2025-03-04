@@ -1,6 +1,5 @@
 package com.eatsadvisor.eatsadvisor.services;
 
-import com.eatsadvisor.eatsadvisor.models.AppUser;
 import com.eatsadvisor.eatsadvisor.repositories.AppUserRepository;
 import org.springframework.stereotype.Service;
 import java.util.Optional;

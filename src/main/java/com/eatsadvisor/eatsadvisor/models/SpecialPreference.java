@@ -13,7 +13,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "special_preference", schema = "public")
+@Table(name = "special_preference")
 public class SpecialPreference {
     @Id
     @ColumnDefault("nextval('special_preference_id_seq')")
@@ -30,7 +30,6 @@ public class SpecialPreference {
     @Column(name = "description", nullable = false, length = Integer.MAX_VALUE)
     private String description;
 
-    @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
 

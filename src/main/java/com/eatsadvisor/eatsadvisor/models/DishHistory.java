@@ -13,7 +13,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "dish_history", schema = "public", indexes = {
+@Table(name = "dish_history", indexes = {
         @Index(name = "idx_dish_history_profile_id", columnList = "profile_id"),
         @Index(name = "idx_dish_history_dish_id", columnList = "dish_id")
 })
@@ -38,7 +38,6 @@ public class DishHistory {
     @Column(name = "user_rating")
     private Integer userRating;
 
-    @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
 

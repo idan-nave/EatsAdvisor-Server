@@ -12,7 +12,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "dish", schema = "public", uniqueConstraints = {
+@Table(name = "dish", uniqueConstraints = {
         @UniqueConstraint(name = "dish_name_key", columnNames = {"name"})
 })
 public class Dish {
@@ -29,7 +29,6 @@ public class Dish {
     @Column(name = "description", length = Integer.MAX_VALUE)
     private String description;
 
-    @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
 

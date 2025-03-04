@@ -13,7 +13,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "profile", schema = "public", indexes = {
+@Table(name = "profile", indexes = {
         @Index(name = "idx_profile_user_id", columnList = "user_id")
 }, uniqueConstraints = {
         @UniqueConstraint(name = "profile_user_id_key", columnNames = {"user_id"})
@@ -30,7 +30,6 @@ public class Profile {
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
 

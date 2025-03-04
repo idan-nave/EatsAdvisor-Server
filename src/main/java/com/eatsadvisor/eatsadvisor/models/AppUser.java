@@ -12,7 +12,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "app_user", schema = "public", indexes = {
+@Table(name = "app_user", indexes = {
         @Index(name = "idx_user_username", columnList = "username"),
         @Index(name = "idx_user_email", columnList = "email")
 }, uniqueConstraints = {
@@ -56,7 +56,6 @@ public class AppUser {
     @Column(name = "refresh_token", length = Integer.MAX_VALUE)
     private String refreshToken;
 
-    @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
 

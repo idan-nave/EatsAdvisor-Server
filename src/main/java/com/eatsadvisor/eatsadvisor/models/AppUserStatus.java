@@ -13,7 +13,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "app_user_status", schema = "public", indexes = {
+@Table(name = "app_user_status", indexes = {
         @Index(name = "idx_user_status_user_id", columnList = "user_id"),
         @Index(name = "idx_user_status_status_id", columnList = "status_type_id")
 })
@@ -35,7 +35,6 @@ public class AppUserStatus {
     @JoinColumn(name = "status_type_id", nullable = false)
     private com.eatsadvisor.eatsadvisor.models.StatusType statusType;
 
-    @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
 

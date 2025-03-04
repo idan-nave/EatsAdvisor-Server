@@ -3,7 +3,6 @@ package com.eatsadvisor.eatsadvisor.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -12,7 +11,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "profile_flavor_preference", schema = "public", indexes = {
+@Table(name = "profile_flavor_preference", indexes = {
         @Index(name = "idx_profile_flavor_preference_profile_id", columnList = "profile_id"),
         @Index(name = "idx_profile_flavor_preference_flavor_id", columnList = "flavor_id")
 })
@@ -35,7 +34,6 @@ public class ProfileFlavorPreference {
     @Column(name = "preference_level")
     private Integer preferenceLevel;
 
-    @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
 

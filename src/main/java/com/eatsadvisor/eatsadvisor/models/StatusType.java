@@ -12,7 +12,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "status_type", schema = "public", uniqueConstraints = {
+@Table(name = "status_type", uniqueConstraints = {
         @UniqueConstraint(name = "status_type_name_key", columnNames = {"name"})
 })
 public class StatusType {
@@ -29,7 +29,6 @@ public class StatusType {
     @Column(name = "description", length = Integer.MAX_VALUE)
     private String description;
 
-    @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
 

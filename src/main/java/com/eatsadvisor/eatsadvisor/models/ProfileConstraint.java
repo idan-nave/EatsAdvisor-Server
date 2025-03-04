@@ -13,7 +13,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "profile_constraint", schema = "public")
+@Table(name = "profile_constraint")
 public class ProfileConstraint {
     @Id
     @ColumnDefault("nextval('profile_constraint_id_seq')")
@@ -32,7 +32,6 @@ public class ProfileConstraint {
     @JoinColumn(name = "constraint_type_id", nullable = false)
     private ConstraintType constraintType;
 
-    @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
 

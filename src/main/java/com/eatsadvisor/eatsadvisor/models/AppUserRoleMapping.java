@@ -13,7 +13,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "app_user_role_mapping", schema = "public", indexes = {
+@Table(name = "app_user_role_mapping", indexes = {
         @Index(name = "idx_user_role_mapping_user_id", columnList = "user_id"),
         @Index(name = "idx_user_role_mapping_role_id", columnList = "role_id")
 })
@@ -35,11 +35,9 @@ public class AppUserRoleMapping {
     @JoinColumn(name = "role_id", nullable = false)
     private AppRole role;
 
-    @ColumnDefault("true")
     @Column(name = "is_active")
     private Boolean isActive;
 
-    @ColumnDefault("now()")
     @Column(name = "created_at")
     private Instant createdAt;
 
