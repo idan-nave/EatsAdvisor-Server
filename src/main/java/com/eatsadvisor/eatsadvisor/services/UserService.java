@@ -1,19 +1,19 @@
 package com.eatsadvisor.eatsadvisor.services;
 
-import com.eatsadvisor.eatsadvisor.models.User;
-import com.eatsadvisor.eatsadvisor.repositories.UserRepository;
+import com.eatsadvisor.eatsadvisor.models.AppUser;
+import com.eatsadvisor.eatsadvisor.repositories.AppUserRepository;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class UserService {
-    private final UserRepository userRepository;
+public class AppUserService {
+    private final AppUserRepository appUserRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public AppUserService(AppUserRepository appUserRepository) {
+        this.appUserRepository = appUserRepository;
     }
 
-    public Optional<User> findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<AppUser> findUserByEmail(String email) {
+        return appUserRepository.findByEmail(email);
     }
 }

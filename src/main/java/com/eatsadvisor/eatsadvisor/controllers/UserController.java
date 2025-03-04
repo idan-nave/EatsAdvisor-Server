@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 // import org.springframework.security.core.annotation.AuthenticationPrincipal;
 // import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.eatsadvisor.eatsadvisor.models.User;
+import com.eatsadvisor.eatsadvisor.models2.User;
 import com.eatsadvisor.eatsadvisor.services.UserService;
 import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
