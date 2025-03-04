@@ -1,0 +1,86 @@
+# ===============================================
+#  🔹 LINE ENDINGS (Fix LF/CRLF issues)
+# ===============================================
+# Convert all text files to LF on commit, auto-convert to OS default on checkout
+* text=auto
+
+# Force specific file types to use LF (Unix-style) - Best for code
+*.sh     text eol=lf
+*.py     text eol=lf
+*.js     text eol=lf
+*.ts     text eol=lf
+*.jsx    text eol=lf
+*.tsx    text eol=lf
+*.json   text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.md     text eol=lf
+# Ensure Linux-style line endings for Maven wrapper script
+/mvnw    text eol=lf
+
+# Keep Windows batch scripts and PowerShell scripts as CRLF
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+*.ps1    text eol=crlf
+
+# ===============================================
+#  🔹 BINARY FILES (Prevent corruption)
+# ===============================================
+# Treat images, videos, and archives as binary (no diffing or auto conversion)
+*.jpg    binary
+*.jpeg   binary
+*.png    binary
+*.gif    binary
+*.bmp    binary
+*.ico    binary
+*.svg    binary
+*.mp4    binary
+*.avi    binary
+*.mov    binary
+*.mkv    binary
+*.zip    binary
+*.rar    binary
+*.7z     binary
+*.tar    binary
+*.gz     binary
+*.pdf    binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.otf    binary
+*.exe    binary
+*.dll    binary
+*.so     binary
+
+# ===============================================
+#  🔹 GIT LARGE FILE STORAGE (LFS)
+# ===============================================
+# Use Git LFS for large files (improves performance)
+*.psd filter=lfs diff=lfs merge=lfs
+*.ai filter=lfs diff=lfs merge=lfs
+*.mp4 filter=lfs diff=lfs merge=lfs
+*.mov filter=lfs diff=lfs merge=lfs
+
+# ===============================================
+#  🔹 MERGE CONFLICT HANDLING
+# ===============================================
+# Always keep the local version for these files (lock files should not be merged)
+package-lock.json merge=ours
+yarn.lock merge=ours
+pnpm-lock.yaml merge=ours
+composer.lock merge=ours
+*.lock merge=ours
+
+# ===============================================
+#  🔹 CUSTOM DIFF SETTINGS (Better Git Diffs)
+# ===============================================
+*.json diff=json
+*.md   diff=markdown
+*.xml  diff=xml
+*.html diff=html
+*.css  diff=css
+*.scss diff=scss
+*.py   diff=python
+*.js   diff=javascript
+*.ts   diff=typescript
+

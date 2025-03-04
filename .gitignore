@@ -1,0 +1,109 @@
+# ===========================================
+# 🔹 GENERAL FILES (OS & System)
+# ===========================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+*.swp
+*.swo
+
+# ===========================================
+# 🔹 FRONTEND (React + Vite + TypeScript)
+# ===========================================
+# Node.js dependencies
+node_modules/
+archive/
+# Build output
+dist/
+.vite/
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.*.local
+# Vite cache
+.vitepress/dist
+# TypeScript build
+*.tsbuildinfo
+
+# ===========================================
+# 🔹 BACKEND (Spring Boot + Java + PostgreSQL)
+# ===========================================
+# Compiled class files
+*.class
+# Build directories
+target/
+build/
+# Log files
+logs/
+*.log
+# Maven
+.mvn/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+# Gradle
+.gradle/
+build/
+# Flyway migration history
+flyway_schema_history/
+# Database files
+*.db
+*.sqlite
+# Environment variables & secrets
+.env
+.env.local
+application.properties
+application.yml
+application-dev.yml
+application-prod.yml
+
+# ===========================================
+# 🔹 IDE & EDITOR SETTINGS (VS Code, IntelliJ, Eclipse)
+# ===========================================
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+### Eclipse ###
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans/
+.sts4-cache/
+### VS Code ###
+.vscode/
+.vscode/*
+!.vscode/extensions.json
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# ===========================================
+# 🔹 DOCKER & CI/CD
+# ===========================================
+docker-compose.override.yml
+.dockerignore
+# GitHub Actions
+.github/workflows/*
+!/.github/workflows/*.yml
+# Build artifacts
+*.jar
+*.war
+
