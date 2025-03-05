@@ -3,10 +3,11 @@ package com.eatsadvisor.eatsadvisor;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
-//@SpringBootTest
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test") // Ensures a test-specific configuration is used
+@ActiveProfiles("test") // Ensures test profile is used
+@TestPropertySource(locations = "classpath:application-test.yml") // Explicit test config
 class EatsadvisorApplicationTests {
 
 	@Test

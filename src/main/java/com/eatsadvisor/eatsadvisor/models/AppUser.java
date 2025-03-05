@@ -5,9 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -22,7 +23,8 @@ import java.time.Instant;
 })
 public class AppUser {
     @Id
-    @ColumnDefault("nextval('app_user_id_seq')")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "app_user_id_gen")
+    @SequenceGenerator(name = "app_user_id_gen", sequenceName = "app_user_id_seq", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Integer id;
 
@@ -53,10 +55,19 @@ public class AppUser {
     @Column(name = "oauth_provider_id", nullable = false)
     private String oauthProviderId;
 
-    @Column(name = "refresh_token", length = Integer.MAX_VALUE)
-    private String refreshToken;
-
     @Column(name = "created_at")
     private Instant createdAt;
+
+    @OneToMany(mappedBy = "user")
+    private Set<AppUserRoleMapping> appUserRoleMappings = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    private Set<AppUserStatus> appUserStatuses = new LinkedHashSet<>();
+
+    @OneToOne(mappedBy = "user")
+    private Profile profile;
+
+    @OneToMany(mappedBy = "user")
+    private Set<RefreshToken> refreshTokens = new LinkedHashSet<>();
 
 }
