@@ -5,10 +5,15 @@ import com.eatsadvisor.eatsadvisor.services.AllergyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +24,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@AutoConfigureMockMvc
 @WebMvcTest(AllergyController.class)
 class AllergyControllerTest {
 
@@ -32,6 +38,7 @@ class AllergyControllerTest {
     private AllergyService allergyService;
 
     @Test
+    @WithMockUser
     void getAllAllergies_ShouldReturnAllAllergies() throws Exception {
         // Arrange
         Allergy peanutAllergy = new Allergy();
@@ -56,6 +63,7 @@ class AllergyControllerTest {
     }
 
     @Test
+    @WithMockUser
     void getAllergyById_WithValidId_ShouldReturnAllergy() throws Exception {
         // Arrange
         Allergy peanutAllergy = new Allergy();
@@ -73,6 +81,7 @@ class AllergyControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void createAllergy_WithValidData_ShouldCreateAllergy() throws Exception {
         // Arrange
         Allergy peanutAllergy = new Allergy();
@@ -85,12 +94,14 @@ class AllergyControllerTest {
         // Act & Assert
         mockMvc.perform(post("/api/allergies")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(peanutAllergy)))
+                        .content(objectMapper.writeValueAsString(peanutAllergy))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Peanuts"));
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void updateAllergy_WithExistingId_ShouldUpdateAllergy() throws Exception {
         // Arrange
         Allergy peanutAllergy = new Allergy();
@@ -98,21 +109,29 @@ class AllergyControllerTest {
         peanutAllergy.setName("Peanuts");
         peanutAllergy.setDescription("Peanut allergy");
 
-        when(allergyService.updateAllergy(1, "Updated Peanuts", "Updated allergy")).thenReturn(peanutAllergy);
+        Allergy updatedAllergy = new Allergy();
+        updatedAllergy.setId(1);
+        updatedAllergy.setName("Updated Peanuts");
+        updatedAllergy.setDescription("Updated allergy");
+
+        when(allergyService.updateAllergy(eq(1), anyString(), anyString())).thenReturn(updatedAllergy);
 
         // Act & Assert
         mockMvc.perform(put("/api/allergies/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(peanutAllergy)))
+                        .content(objectMapper.writeValueAsString(peanutAllergy))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Peanuts"));
+                .andExpect(jsonPath("$.name").value("Updated Peanuts"));
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void deleteAllergy_WithValidId_ShouldDeleteAllergy() throws Exception {
         // Act & Assert
         mockMvc.perform(delete("/api/allergies/1")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNoContent());
     }
 }

@@ -2,6 +2,7 @@ package com.eatsadvisor.eatsadvisor.controllers;
 
 import com.eatsadvisor.eatsadvisor.models.Allergy;
 import com.eatsadvisor.eatsadvisor.services.AllergyService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -71,7 +72,7 @@ public class AllergyController {
             }
 
             Allergy allergy = allergyService.createAllergy(name, description);
-            return ResponseEntity.ok(allergy);
+            return ResponseEntity.status(HttpStatus.CREATED).body(allergy);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
@@ -95,6 +96,9 @@ public class AllergyController {
             String description = allergyData.get("description");
 
             Allergy allergy = allergyService.updateAllergy(id, name, description);
+            if (allergy == null) {
+                return ResponseEntity.notFound().build();
+            }
             return ResponseEntity.ok(allergy);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -115,7 +119,7 @@ public class AllergyController {
     public ResponseEntity<Object> deleteAllergy(@PathVariable Integer id) {
         try {
             allergyService.deleteAllergy(id);
-            return ResponseEntity.ok(Map.of("message", "Allergy deleted successfully"));
+            return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {

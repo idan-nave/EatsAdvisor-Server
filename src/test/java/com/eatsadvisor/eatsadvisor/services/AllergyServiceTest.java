@@ -110,6 +110,7 @@ class AllergyServiceTest {
     @Test
     void deleteAllergy_WithValidId_ShouldDeleteAllergy() {
         // Arrange
+        when(allergyRepository.existsById(1)).thenReturn(true);
         doNothing().when(allergyRepository).deleteById(1);
 
         // Act

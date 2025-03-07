@@ -52,9 +52,11 @@ public class AuthController {
 
             Cookie jwtCookie = new Cookie("jwt", jwt);
             jwtCookie.setHttpOnly(true);
-            jwtCookie.setSecure(false);
+            jwtCookie.setSecure(true);
+            jwtCookie.setDomain("localhost");
             jwtCookie.setPath("/");
             jwtCookie.setMaxAge(3600);
+            jwtCookie.setAttribute("SameSite", "None");
             response.addCookie(jwtCookie);
 
             response.sendRedirect("http://localhost:3001/dashboard"); // Redirect to frontend
