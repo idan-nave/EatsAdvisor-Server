@@ -2,6 +2,11 @@ package com.eatsadvisor.eatsadvisor.services;
 
 import com.eatsadvisor.eatsadvisor.models.Allergy;
 import com.eatsadvisor.eatsadvisor.repositories.AllergyRepository;
+import com.eatsadvisor.eatsadvisor.models.AppUser;
+import com.eatsadvisor.eatsadvisor.models.AppUserStatus;
+import com.eatsadvisor.eatsadvisor.models.StatusType;
+import com.eatsadvisor.eatsadvisor.repositories.AppUserStatusRepository;
+import com.eatsadvisor.eatsadvisor.repositories.StatusTypeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,9 +17,13 @@ import java.util.Optional;
 @Service
 public class AllergyService {
     private final AllergyRepository allergyRepository;
+    private final AppUserStatusRepository appUserStatusRepository;
+    private final StatusTypeRepository statusTypeRepository;
 
-    public AllergyService(AllergyRepository allergyRepository) {
+    public AllergyService(AllergyRepository allergyRepository, AppUserStatusRepository appUserStatusRepository, StatusTypeRepository statusTypeRepository) {
         this.allergyRepository = allergyRepository;
+        this.appUserStatusRepository = appUserStatusRepository;
+        this.statusTypeRepository = statusTypeRepository;
     }
 
     /**
@@ -64,12 +73,12 @@ public class AllergyService {
         if (allergyRepository.existsByName(name)) {
             throw new IllegalArgumentException("Allergy with name '" + name + "' already exists");
         }
-        
+
         Allergy allergy = new Allergy();
         allergy.setName(name);
         allergy.setDescription(description);
         allergy.setCreatedAt(Instant.now());
-        
+
         return allergyRepository.save(allergy);
     }
 
@@ -84,7 +93,7 @@ public class AllergyService {
     public Allergy updateAllergy(Integer id, String name, String description) {
         Allergy allergy = allergyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Allergy not found with ID: " + id));
-        
+
         // Update name if provided
         if (name != null && !name.isEmpty()) {
             // Check if the new name already exists for a different allergy
@@ -94,12 +103,12 @@ public class AllergyService {
             }
             allergy.setName(name);
         }
-        
+
         // Update description if provided
         if (description != null) {
             allergy.setDescription(description);
         }
-        
+
         return allergyRepository.save(allergy);
     }
 
@@ -113,7 +122,7 @@ public class AllergyService {
         if (!allergyRepository.existsById(id)) {
             throw new RuntimeException("Allergy not found with ID: " + id);
         }
-        
+
         allergyRepository.deleteById(id);
     }
 
@@ -122,6 +131,19 @@ public class AllergyService {
      * @param profileId The profile ID
      * @return List of allergies for the profile
      */
+    @Transactional
+    public void setAllergyStatus(AppUser user, String statusTypeName) {
+        StatusType statusType = statusTypeRepository.findByName(statusTypeName)
+                .orElseThrow(() -> new IllegalArgumentException("StatusType with name '" + statusTypeName + "' not found"));
+
+        AppUserStatus appUserStatus = new AppUserStatus();
+        appUserStatus.setUser(user);
+        appUserStatus.setStatusType(statusType);
+        appUserStatus.setCreatedAt(Instant.now());
+
+        appUserStatusRepository.save(appUserStatus);
+    }
+
     public List<Allergy> getAllergiesByProfileId(Integer profileId) {
         return allergyRepository.findByProfileId(profileId);
     }

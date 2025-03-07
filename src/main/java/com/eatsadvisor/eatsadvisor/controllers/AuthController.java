@@ -52,14 +52,14 @@ public class AuthController {
 
             Cookie jwtCookie = new Cookie("jwt", jwt);
             jwtCookie.setHttpOnly(true);
-            jwtCookie.setSecure(true);
+            jwtCookie.setSecure(false);
             jwtCookie.setPath("/");
             jwtCookie.setMaxAge(3600);
             response.addCookie(jwtCookie);
 
-            response.sendRedirect("http://localhost:3000/dashboard"); // Redirect to frontend
+            response.sendRedirect("http://localhost:3001/dashboard"); // Redirect to frontend
         } else {
-            response.sendRedirect("http://localhost:3000/login"); // Handle failed login
+            response.sendRedirect("http://localhost:3001/login"); // Handle failed login
         }
     }
 

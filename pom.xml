@@ -200,8 +200,10 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+					<jvmArguments>--enable-preview</jvmArguments>
 				</configuration>
 			</plugin>
+
 
 			<!-- Maven Surefire Plugin for Running Tests -->
 			<plugin>
@@ -212,6 +214,7 @@
 					<argLine>
 						-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
 						-Xshare:off
+						--enable-preview
 					</argLine>
 				</configuration>
 			</plugin>

@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/profiles")
-public class ProfileController {
+@RequestMapping("/custom-api/profiles")
+public class CustomProfileController {
 
     private final ProfileService profileService;
 
-    public ProfileController(ProfileService profileService) {
+    public CustomProfileController(ProfileService profileService) {
         this.profileService = profileService;
     }
 
