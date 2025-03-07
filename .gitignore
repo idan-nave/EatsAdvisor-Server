@@ -67,6 +67,7 @@ application.properties
 application.yml
 application-dev.yml
 application-prod.yml
+.gitattributes
 
 # ===========================================
 # 🔹 IDE & EDITOR SETTINGS (VS Code, IntelliJ, Eclipse)
@@ -107,3 +108,5 @@ docker-compose.override.yml
 *.jar
 *.war
 
+
+.fake

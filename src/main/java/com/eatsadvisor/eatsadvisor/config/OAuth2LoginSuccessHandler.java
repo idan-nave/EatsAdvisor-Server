@@ -30,7 +30,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Override
     @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+            Authentication authentication) throws IOException, ServletException {
         OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
         String email = oauthUser.getAttribute("email");
         String oauthProvider = "google"; // Hardcoded for now
@@ -56,6 +56,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         response.addCookie(refreshCookie);
 
         // Redirect to frontend
-        response.sendRedirect("/auth/login-success"); // ✅ Redirect to controller
+        response.sendRedirect("/auth/login-success"); // Redirect to controller
     }
 }

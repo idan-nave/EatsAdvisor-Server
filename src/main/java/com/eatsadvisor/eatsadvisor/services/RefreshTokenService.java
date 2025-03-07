@@ -6,6 +6,7 @@ import com.eatsadvisor.eatsadvisor.repositories.AppUserRepository;
 import com.eatsadvisor.eatsadvisor.repositories.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -14,7 +15,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,14 +35,18 @@ public class RefreshTokenService {
         this.appUserRepository = appUserRepository;
     }
 
+    /**
+     * Delete a refresh token from the database
+     */
     public void deleteRefreshToken(String token) {
         refreshTokenRepository.findByToken(token).ifPresent(refreshTokenRepository::delete);
     }
 
+    /**
+     * Create a new refresh token for a user
+     */
     public String createRefreshToken(Long userId) {
-        AppUser user = appUserRepository.findById(userId).orElseThrow(() ->
-                new RuntimeException("User not found")
-        );
+        AppUser user = appUserRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
@@ -53,6 +57,18 @@ public class RefreshTokenService {
         return refreshToken.getToken();
     }
 
+    /**
+     * Validate if a refresh token exists and is not expired
+     */
+    public boolean validateRefreshToken(String refreshToken) {
+        return refreshTokenRepository.findByToken(refreshToken)
+                .filter(token -> token.getExpiry().isAfter(Instant.now()))
+                .isPresent();
+    }
+
+    /**
+     * Refresh access token using Google OAuth2 API
+     */
     public String refreshAccessToken(String refreshToken) {
         RefreshToken storedToken = refreshTokenRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
@@ -69,9 +85,43 @@ public class RefreshTokenService {
         body.put("refresh_token", storedToken.getToken());
         body.put("grant_type", "refresh_token");
 
-        ResponseEntity<Map> response = restTemplate.postForEntity("https://oauth2.googleapis.com/token",
-                new HttpEntity<>(body), Map.class);
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                "https://oauth2.googleapis.com/token",
+                org.springframework.http.HttpMethod.POST,
+                new HttpEntity<>(body),
+                new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {
+                });
 
-        return response.getBody().get("access_token").toString();
+        Map<String, Object> responseBody = response.getBody();
+        if (responseBody == null || !responseBody.containsKey("access_token")) {
+            throw new RuntimeException("Failed to refresh access token");
+        }
+
+        return responseBody.get("access_token").toString();
+    }
+
+    /**
+     * Generate a new JWT using the refreshed access token
+     */
+    public String generateNewJwt(String refreshToken) {
+        String newAccessToken = refreshAccessToken(refreshToken);
+
+        // Request ID token (JWT) from Google
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(newAccessToken);
+
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                "https://oauth2.googleapis.com/tokeninfo",
+                org.springframework.http.HttpMethod.POST,
+                new HttpEntity<>(headers),
+                new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {
+                });
+
+        Map<String, Object> responseBody = response.getBody();
+        if (responseBody == null || !responseBody.containsKey("id_token")) {
+            throw new RuntimeException("Failed to retrieve new JWT");
+        }
+
+        return responseBody.get("id_token").toString();
     }
 }
