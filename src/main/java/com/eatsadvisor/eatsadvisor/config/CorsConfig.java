@@ -13,10 +13,12 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3001", "http://localhost:8080"));
+        config.setAllowedOrigins(List.of("http://localhost:3001"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+        config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Accept"));
+        config.setExposedHeaders(List.of("Set-Cookie", "Access-Control-Allow-Credentials"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L); // 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

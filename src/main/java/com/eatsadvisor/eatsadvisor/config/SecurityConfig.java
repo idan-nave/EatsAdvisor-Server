@@ -1,5 +1,7 @@
 package com.eatsadvisor.eatsadvisor.config;
 
+import com.eatsadvisor.eatsadvisor.repositories.AppUserRepository;
+import com.eatsadvisor.eatsadvisor.services.RefreshTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -20,30 +22,31 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    private final AppUserRepository appUserRepository;
+    private final RefreshTokenService refreshTokenService;
 
-    public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository) {
+    public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository, 
+                         AppUserRepository appUserRepository,
+                         RefreshTokenService refreshTokenService) {
+        this.appUserRepository = appUserRepository;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Bean
-    //A chain of filters that are capable of performing security-related tasks
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF because we're using JWTs
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No sessions
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No
+                                                                                                              // sessions
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**", "/auth/**", "/oauth2/**", "/login/**").permitAll()
                         .requestMatchers("/api/users/me").authenticated()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
-                        .successHandler((request, response, authentication) -> {
-                            response.sendRedirect("/auth/login-success");
-                        })
-                )
-                // Configures OAuth2 Resource Server- expects JWTs for authentication when handling API requests.
+                        .successHandler(new OAuth2LoginSuccessHandler(
+                                appUserRepository, refreshTokenService)))
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter())
-                        )
+                        .jwt(jwt -> jwt.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .bearerTokenResolver(new CookieBearerTokenResolver()) // Extract JWT from Cookie
                 );
 
@@ -73,14 +76,33 @@ public class SecurityConfig {
 
         @Override
         public String resolve(HttpServletRequest request) {
+            System.out.println("🔍 CookieBearerTokenResolver: Checking for JWT cookie");
+            
+            // Log all cookies for debugging
             if (request.getCookies() != null) {
-                return Arrays.stream(request.getCookies())
-                        .filter(cookie -> "jwt".equals(cookie.getName()))
-                        .map(Cookie::getValue)
-                        .findFirst()
-                        .orElseGet(() -> defaultResolver.resolve(request));
+                System.out.println("🍪 Cookies found: " + request.getCookies().length);
+                for (Cookie cookie : request.getCookies()) {
+                    System.out.println("🍪 Cookie: " + cookie.getName() + " (Domain: " + cookie.getDomain() + ", Path: " + cookie.getPath() + ")");
+                    
+                    if ("jwt".equals(cookie.getName())) {
+                        String token = cookie.getValue();
+                        System.out.println("✅ JWT cookie found! Token length: " + token.length());
+                        return token;
+                    }
+                }
+            } else {
+                System.out.println("❌ No cookies found in request");
             }
-            return defaultResolver.resolve(request);
+            
+            // Try header as fallback
+            String headerToken = defaultResolver.resolve(request);
+            if (headerToken != null) {
+                System.out.println("🔄 Using JWT from Authorization header instead");
+                return headerToken;
+            }
+            
+            System.out.println("❌ No JWT found in cookies or headers");
+            return null;
         }
     }
 }
