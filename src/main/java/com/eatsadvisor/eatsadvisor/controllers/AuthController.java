@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -146,15 +147,47 @@ public class AuthController {
             return ResponseEntity.status(401).body("Not authenticated");
         }
 
+        // Handle OidcUser (direct OAuth login)
         if (authentication.getPrincipal() instanceof OidcUser oidcUser) {
-            System.out.println("✅ Authenticated user: " + oidcUser.getEmail());
+            System.out.println("✅ Authenticated user (OIDC): " + oidcUser.getEmail());
 
             Map<String, String> userInfo = new HashMap<>();
             userInfo.put("email", oidcUser.getEmail());
-            userInfo.put("name", oidcUser.getFullName());
+            
+            // Split the full name into first and last name if available
+            String fullName = oidcUser.getFullName();
+            if (fullName != null && !fullName.isEmpty()) {
+                String[] nameParts = fullName.split(" ", 2);
+                userInfo.put("firstName", nameParts[0]);
+                if (nameParts.length > 1) {
+                    userInfo.put("lastName", nameParts[1]);
+                }
+            }
+            
+            return ResponseEntity.ok(userInfo);
+        }
+        
+        // Handle JWT authentication
+        if (authentication.getPrincipal() instanceof Jwt jwt) {
+            System.out.println("✅ Authenticated user (JWT): " + jwt.getSubject());
+            
+            Map<String, String> userInfo = new HashMap<>();
+            userInfo.put("email", jwt.getClaimAsString("email"));
+            
+            // Get name from JWT claims
+            String fullName = jwt.getClaimAsString("name");
+            if (fullName != null && !fullName.isEmpty()) {
+                String[] nameParts = fullName.split(" ", 2);
+                userInfo.put("firstName", nameParts[0]);
+                if (nameParts.length > 1) {
+                    userInfo.put("lastName", nameParts[1]);
+                }
+            }
+            
             return ResponseEntity.ok(userInfo);
         }
 
+        System.out.println("❌ Unknown authentication type: " + authentication.getClass().getName());
         return ResponseEntity.status(401).body("Invalid authentication");
     }
 
