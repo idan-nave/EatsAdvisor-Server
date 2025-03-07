@@ -65,11 +65,11 @@ public class AllergyController {
         try {
             String name = allergyData.get("name");
             String description = allergyData.get("description");
-            
+
             if (name == null || name.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Allergy name is required"));
             }
-            
+
             Allergy allergy = allergyService.createAllergy(name, description);
             return ResponseEntity.ok(allergy);
         } catch (IllegalArgumentException e) {
@@ -93,7 +93,7 @@ public class AllergyController {
         try {
             String name = allergyData.get("name");
             String description = allergyData.get("description");
-            
+
             Allergy allergy = allergyService.updateAllergy(id, name, description);
             return ResponseEntity.ok(allergy);
         } catch (IllegalArgumentException e) {
@@ -142,11 +142,11 @@ public class AllergyController {
     @GetMapping("/{allergyId}/profile-count")
     public ResponseEntity<Map<String, Object>> getProfileCountByAllergyId(@PathVariable Integer allergyId) {
         long count = allergyService.getProfileCountByAllergyId(allergyId);
-        
+
         Map<String, Object> response = new HashMap<>();
         response.put("allergyId", allergyId);
         response.put("profileCount", count);
-        
+
         return ResponseEntity.ok(response);
     }
 }

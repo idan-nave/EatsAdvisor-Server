@@ -48,6 +48,23 @@ public class ProfileService {
     }
 
     /**
+     * Get all profiles
+     * @return List of all profiles
+     */
+    public List<Profile> getAllProfiles() {
+        return profileRepository.findAll();
+    }
+
+    /**
+     * Get a profile by ID
+     * @param id The profile ID
+     * @return The profile if found
+     */
+    public Optional<Profile> getProfileById(Integer id) {
+        return profileRepository.findById(id);
+    }
+
+    /**
      * Get a user's profile by email
      * @param email The user's email
      * @return The user's profile
@@ -86,6 +103,40 @@ public class ProfileService {
         profile.setCreatedAt(java.time.Instant.now());
         
         return profileRepository.save(profile);
+    }
+
+    /**
+     * Update an existing profile
+     * @param id The profile ID
+     * @param email The new email
+     * @return The updated profile
+     */
+    @Transactional
+    public Profile updateProfile(Integer id, String email) {
+        Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Profile not found with ID: " + id));
+        
+         Optional<AppUser> userOpt = appUserRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+        
+        AppUser user = userOpt.get();
+        profile.setUser(user);
+        
+        return profileRepository.save(profile);
+    }
+
+    /**
+     * Delete a profile
+     * @param id The profile ID
+     */
+    @Transactional
+    public void deleteProfile(Integer id) {
+         Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Profile not found with ID: " + id));
+        
+        profileRepository.delete(profile);
     }
 
     /**

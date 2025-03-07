@@ -230,29 +230,29 @@ public class OpenAIService {
                     try {
                         // For simplicity, we're returning the raw JSON string
                         // In a real application, you would parse this into a proper object
-                        return Map.of(
-                            "success", true,
-                            "recommendations", content
-                        );
+                        Map<String, Object> recommendationMap = new HashMap<>();
+                        recommendationMap.put("success", true);
+                        recommendationMap.put("recommendations", content);
+                        return recommendationMap;
                     } catch (Exception e) {
-                        return Map.of(
-                            "success", false,
-                            "error", "Failed to parse recommendations: " + e.getMessage(),
-                            "rawContent", content
-                        );
+                        Map<String, Object> errorMap = new HashMap<>();
+                        errorMap.put("success", false);
+                        errorMap.put("error", "Failed to parse recommendations: " + e.getMessage());
+                        errorMap.put("rawContent", content);
+                        return errorMap;
                     }
                 }
             }
             
-            return Map.of(
-                "success", false,
-                "error", "Failed to get recommendations from OpenAI"
-            );
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("success", false);
+            errorMap.put("error", "Failed to get recommendations from OpenAI");
+            return errorMap;
         } catch (Exception e) {
-            return Map.of(
-                "success", false,
-                "error", "Error calling OpenAI API: " + e.getMessage()
-            );
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("success", false);
+            errorMap.put("error", "Error calling OpenAI API: " + e.getMessage());
+            return errorMap;
         }
     }
 

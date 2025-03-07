@@ -63,10 +63,10 @@ flyway_schema_history/
 # Environment variables & secrets
 .env
 .env.local
-application.properties
-application.yml
-application-dev.yml
-application-prod.yml
+# application.properties
+# application.yml
+# application-dev.yml
+# application-prod.yml
 .gitattributes
 
 # ===========================================

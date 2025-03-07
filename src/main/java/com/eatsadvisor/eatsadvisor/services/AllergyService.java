@@ -133,7 +133,7 @@ public class AllergyService {
      */
     public long getProfileCountByAllergyId(Integer allergyId) {
         return allergyRepository.findById(allergyId)
-                .map(unused -> (long) allergyRepository.findByProfileId(allergyId).size())
+                .map(allergy -> (long) allergyRepository.findByProfileId(allergyId).size())
                 .orElse(0L);
     }
 }
