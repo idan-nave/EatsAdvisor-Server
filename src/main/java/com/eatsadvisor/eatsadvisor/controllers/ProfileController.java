@@ -1,6 +1,7 @@
 package com.eatsadvisor.eatsadvisor.controllers;
 
 import com.eatsadvisor.eatsadvisor.models.Profile;
+import com.eatsadvisor.eatsadvisor.models.AppUser;
 import com.eatsadvisor.eatsadvisor.services.ProfileService;
 
 import org.springframework.http.HttpStatus;
@@ -157,7 +158,24 @@ public class ProfileController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid authentication"));
             }
 
-            // Set user preferences
+            // Get the AppUser
+            Optional<AppUser> appUserOptional = profileService.getAppUserByEmail(email);
+            if (appUserOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+            }
+            AppUser appUser = appUserOptional.get();
+
+            // Check if profile exists
+            Optional<Profile> profileOptional = profileService.getProfileByEmail(email);
+            if (profileOptional.isEmpty()) {
+                // Create profile if it doesn't exist
+                Profile newProfile = new Profile();
+                newProfile.setUser(appUser);
+                profileService.saveProfile(newProfile);
+                System.out.println("✅ ProfileController: Created profile for new user");
+            }
+
+            // Set user preferences (This line is commented out, uncomment it when the method is implemented)
             // profileService.setUserPreferences(email, preferences);
 
             // Return success response

@@ -446,4 +446,12 @@ public class ProfileService {
         
         return preferences;
     }
+
+    public Optional<AppUser> getAppUserByEmail(String email) {
+        return appUserRepository.findByEmail(email);
+    }
+
+    public void saveProfile(Profile profile) {
+        profileRepository.save(profile);
+    }
 }

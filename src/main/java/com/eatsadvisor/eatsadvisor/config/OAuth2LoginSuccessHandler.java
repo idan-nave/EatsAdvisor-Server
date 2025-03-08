@@ -69,12 +69,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             newUser.setOauthProviderId(oauthUser.getAttribute("sub"));
             AppUser savedUser = appUserRepository.save(newUser);
 
-            // Create profile for the new user
-            Profile newProfile = new Profile();
-            newProfile.setUser(savedUser);
-            profileRepository.save(newProfile);
-            System.out.println("✅ OAuth2LoginSuccessHandler: Created profile for new user");
-
             return savedUser;
         });
 
