@@ -8,12 +8,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -51,7 +54,7 @@ public class RefreshTokenService {
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
         refreshToken.setToken(UUID.randomUUID().toString());
-        refreshToken.setExpiry(Instant.now().plus(7, ChronoUnit.DAYS));
+        refreshToken.setExpiry(Instant.now().plus(7, ChronoUnit.DAYS)); // Set expiry to 1 week
 
         refreshTokenRepository.save(refreshToken);
         return refreshToken.getToken();
@@ -123,5 +126,17 @@ public class RefreshTokenService {
         }
 
         return responseBody.get("id_token").toString();
+    }
+
+    /**
+     * Delete expired refresh tokens
+     */
+    @Transactional
+    @Scheduled(cron = "0 0 * * * *") // Run every hour
+    public void deleteExpiredRefreshTokens() {
+        Instant now = Instant.now();
+        List<RefreshToken> expiredTokens = refreshTokenRepository.findByExpiryBefore(now);
+        refreshTokenRepository.deleteAll(expiredTokens);
+        System.out.println("✅ RefreshTokenService: Deleted " + expiredTokens.size() + " expired refresh tokens");
     }
 }

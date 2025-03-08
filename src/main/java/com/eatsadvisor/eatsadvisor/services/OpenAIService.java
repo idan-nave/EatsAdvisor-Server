@@ -18,7 +18,7 @@ public class OpenAIService {
     private final String apiKey;
     private final String apiUrl = "https://api.openai.com/v1/chat/completions";
 
-    public OpenAIService(@Value("${openai.api-key}") String apiKey) {
+    public OpenAIService(@Value("${OPENAI_API_KEY}") String apiKey) {
         this.apiKey = apiKey;
         this.restTemplate = new RestTemplate();
     }

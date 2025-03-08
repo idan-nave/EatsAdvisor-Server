@@ -1,6 +1,7 @@
 package com.eatsadvisor.eatsadvisor.config;
 
 import com.eatsadvisor.eatsadvisor.repositories.AppUserRepository;
+import com.eatsadvisor.eatsadvisor.repositories.ProfileRepository;
 import com.eatsadvisor.eatsadvisor.services.RefreshTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,12 +24,15 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
     private final AppUserRepository appUserRepository;
+    private final ProfileRepository profileRepository;
     private final RefreshTokenService refreshTokenService;
 
-    public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository, 
+    public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
                          AppUserRepository appUserRepository,
+                         ProfileRepository profileRepository,
                          RefreshTokenService refreshTokenService) {
         this.appUserRepository = appUserRepository;
+        this.profileRepository = profileRepository;
         this.refreshTokenService = refreshTokenService;
     }
 
@@ -44,7 +48,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(new OAuth2LoginSuccessHandler(
-                                appUserRepository, refreshTokenService)))
+                                appUserRepository, profileRepository, refreshTokenService)))
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .bearerTokenResolver(new CookieBearerTokenResolver()) // Extract JWT from Cookie
@@ -77,13 +81,13 @@ public class SecurityConfig {
         @Override
         public String resolve(HttpServletRequest request) {
             System.out.println("🔍 CookieBearerTokenResolver: Checking for JWT cookie");
-            
+
             // Log all cookies for debugging
             if (request.getCookies() != null) {
                 System.out.println("🍪 Cookies found: " + request.getCookies().length);
                 for (Cookie cookie : request.getCookies()) {
                     System.out.println("🍪 Cookie: " + cookie.getName() + " (Domain: " + cookie.getDomain() + ", Path: " + cookie.getPath() + ")");
-                    
+
                     if ("jwt".equals(cookie.getName())) {
                         String token = cookie.getValue();
                         System.out.println("✅ JWT cookie found! Token length: " + token.length());
@@ -93,14 +97,14 @@ public class SecurityConfig {
             } else {
                 System.out.println("❌ No cookies found in request");
             }
-            
+
             // Try header as fallback
             String headerToken = defaultResolver.resolve(request);
             if (headerToken != null) {
                 System.out.println("🔄 Using JWT from Authorization header instead");
                 return headerToken;
             }
-            
+
             System.out.println("❌ No JWT found in cookies or headers");
             return null;
         }
