@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +15,7 @@ import java.util.Map;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/menu")
 public class MenuController {
 
     @Autowired
@@ -25,9 +27,14 @@ public class MenuController {
     @PostMapping("/upload")
     public ResponseEntity<JsonNode> uploadImage(
             @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "email", required = false) String email) {
+            Authentication authentication) {
         ObjectMapper mapper = new ObjectMapper();
         try {
+            // Since we have .anyRequest().authenticated() in SecurityConfig,
+            // we can safely assume the request is authenticated at this point
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String email = jwt.getClaim("email");
+
             // Extract text (menu) from the uploaded image
             JsonNode extractedMenu = menuService.extractTextFromImage(file);
 
@@ -37,10 +44,7 @@ public class MenuController {
             }
 
             // Get user preferences if email is provided
-            Map<String, Object> userPreferences = null;
-            if (email != null && !email.isEmpty()) {
-                userPreferences = profileService.getUserPreferencesForRecommendation(email);
-            }
+            Map<String, Object> userPreferences = profileService.getUserPreferencesForRecommendation(email);
 
             // Classify the extracted menu items
             JsonNode categorizedDishes = menuService.classifyDishes(extractedMenu, userPreferences);

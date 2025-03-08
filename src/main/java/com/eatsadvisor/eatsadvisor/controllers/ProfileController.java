@@ -115,16 +115,10 @@ public class ProfileController {
     @GetMapping("/preferences")
     public ResponseEntity<Map<String, Object>> getPreferences(Authentication authentication) {
         try {
-            // Check if user is authenticated
-            if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authentication required"));
-            }
-
-            // Get user email
+            // Since we have .anyRequest().authenticated() in SecurityConfig,
+            // we can safely assume the request is authenticated at this point
+            Jwt jwt = (Jwt) authentication.getPrincipal();
             String email = jwt.getClaim("email");
-            if (email == null || email.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid authentication"));
-            }
 
             // Get user preferences
             Map<String, Object> preferences = profileService.getUserPreferencesForRecommendation(email);
@@ -147,16 +141,10 @@ public class ProfileController {
             @RequestBody Map<String, Object> preferences,
             Authentication authentication) {
         try {
-            // Check if user is authenticated
-            if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authentication required"));
-            }
-
-            // Get user email
+            // Since we have .anyRequest().authenticated() in SecurityConfig,
+            // we can safely assume the request is authenticated at this point
+            Jwt jwt = (Jwt) authentication.getPrincipal();
             String email = jwt.getClaim("email");
-            if (email == null || email.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid authentication"));
-            }
 
             // Get the AppUser
             Optional<AppUser> appUserOptional = profileService.getAppUserByEmail(email);
