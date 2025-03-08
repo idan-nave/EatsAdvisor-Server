@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/custom-api/profiles")
+@RequestMapping("/profile")
 public class ProfileController {
 
     private final ProfileService profileService;
@@ -55,8 +55,9 @@ public class ProfileController {
      * @param email The profile email
      * @return The profile if found
      */
-    @GetMapping("/email/{email}")
-    public ResponseEntity<Profile> getProfileByEmail(@PathVariable String email) {
+    @PostMapping("/get")
+    public ResponseEntity<Profile> getProfileByEmail(@RequestBody Map<String, String> profileData) {
+        String email = profileData.get("email");
         Optional<Profile> profileOpt = profileService.getProfileByEmail(email);
         return profileOpt.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -65,18 +66,17 @@ public class ProfileController {
     
     /**
      * Update an existing profile (admin only)
-     * @param id The profile ID
      * @param profileData Map containing profile data
      * @return The updated profile
      */
-    @PutMapping("/{id}")
+    @PostMapping("/update")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> updateProfile(
-            @PathVariable Integer id,
             @RequestBody Map<String, String> profileData) {
         try {
+            Integer id = Integer.parseInt(profileData.get("id"));
             String email = profileData.get("email");
-            
+
             Profile profile = profileService.updateProfile(id, email);
             return ResponseEntity.ok(profile);
         } catch (IllegalArgumentException e) {
