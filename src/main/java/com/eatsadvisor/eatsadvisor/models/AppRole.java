@@ -19,7 +19,7 @@ import java.time.Instant;
 })
 public class AppRole {
     @Id
-    @ColumnDefault("nextval('app_role_id_seq')")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

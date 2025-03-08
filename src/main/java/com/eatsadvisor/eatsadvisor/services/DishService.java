@@ -87,13 +87,14 @@ public class DishService {
         if (dishRepository.existsByName(name)) {
             throw new IllegalArgumentException("Dish with name '" + name + "' already exists");
         }
-        
+
         Dish dish = new Dish();
         dish.setName(name);
         dish.setDescription(description);
         dish.setCreatedAt(Instant.now());
-        
-        return dishRepository.save(dish);
+
+        Dish savedDish = dishRepository.save(dish);
+        return savedDish;
     }
 
     /**
@@ -301,19 +302,31 @@ public class DishService {
         return java.util.Arrays.stream(lines)
                 .filter(line -> !line.trim().isEmpty())
                 .map(line -> {
-                    // Extract dish name (simplified)
-                    String dishName = line.split("[\\-\\:]")[0].trim();
-                    
-                    // Extract description (simplified)
-                    String description = line.length() > dishName.length() ? 
-                            line.substring(dishName.length()).trim() : "";
-                    
-                    // Clean up description
-                    description = description.replaceAll("^[\\-\\:\\s]+", "").trim();
-                    
-                    // Create or get dish
-                    return getOrCreateDish(dishName, description);
+                    try {
+                        // Extract dish name (simplified)
+                        String dishName = line.split("[\\-\\:]")[0].trim();
+                        
+                        // Skip if dish name is empty
+                        if (dishName.isEmpty()) {
+                            return null;
+                        }
+                        
+                        // Extract description (simplified)
+                        String description = line.length() > dishName.length() ? 
+                                line.substring(dishName.length()).trim() : "";
+                        
+                        // Clean up description
+                        description = description.replaceAll("^[\\-\\:\\s]+", "").trim();
+                        
+                        // Create or get dish
+                        return getOrCreateDish(dishName, description);
+                    } catch (Exception e) {
+                        // Log the error and skip this line
+                        System.err.println("Error processing menu line: " + line + " - " + e.getMessage());
+                        return null;
+                    }
                 })
+                .filter(dish -> dish != null)
                 .collect(Collectors.toList());
     }
 }

@@ -19,7 +19,7 @@ import java.time.Instant;
 })
 public class AppUserRoleMapping {
     @Id
-    @ColumnDefault("nextval('app_user_role_mapping_id_seq')")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

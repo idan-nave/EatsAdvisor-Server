@@ -1,178 +1,60 @@
 package com.eatsadvisor.eatsadvisor.controllers;
 
-import com.eatsadvisor.eatsadvisor.models.Dish;
 import com.eatsadvisor.eatsadvisor.services.MenuService;
-import com.eatsadvisor.eatsadvisor.services.OpenAIService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
+import com.eatsadvisor.eatsadvisor.services.ProfileService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/menu")
+@RequestMapping("/api")
 public class MenuController {
 
-    private final MenuService menuService;
-    private final OpenAIService openAIService;
+    @Autowired
+    private MenuService menuService;
 
-    public MenuController(MenuService menuService, OpenAIService openAIService) {
-        this.menuService = menuService;
-        this.openAIService = openAIService;
-    }
+    @Autowired
+    private ProfileService profileService;
 
-    /**
-     * Upload a menu image and extract text
-     */
     @PostMapping("/upload")
-    public ResponseEntity<Map<String, Object>> uploadMenu(@RequestParam("file") MultipartFile file) {
-        try {
-            // Extract text from menu image
-            String menuText = menuService.processMenuImage(file);
-
-            // Process dishes from menu text
-            List<Dish> dishes = menuService.processMenuText(menuText);
-
-            // Return response with extracted text and dishes
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Menu uploaded successfully");
-            response.put("menuText", menuText);
-            response.put("dishCount", dishes.size());
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to process menu: " + e.getMessage()));
-        }
-    }
-    
-    /**
-     * Upload a menu image and get recommendations
-     */
-    @PostMapping("/upload-and-recommend")
-    public ResponseEntity<Map<String, Object>> uploadMenuAndGetRecommendations(
+    public ResponseEntity<JsonNode> uploadImage(
             @RequestParam("file") MultipartFile file,
-            Authentication authentication) {
+            @RequestParam(value = "email", required = false) String email) {
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            String email = null;
-            
-            // Get user email from authentication if available
-            if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
-                email = jwt.getClaim("email");
+            // Extract text (menu) from the uploaded image
+            JsonNode extractedMenu = menuService.extractTextFromImage(file);
+
+            // Check if the response contains an error
+            if (extractedMenu.has("error")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(extractedMenu);
             }
-            
-            // Process menu image and get recommendations
-            Map<String, Object> result = menuService.processMenuImageAndGetRecommendations(file, email);
-            
-            return ResponseEntity.ok(result);
+
+            // Get user preferences if email is provided
+            Map<String, Object> userPreferences = null;
+            if (email != null && !email.isEmpty()) {
+                userPreferences = profileService.getUserPreferencesForRecommendation(email);
+            }
+
+            // Classify the extracted menu items
+            JsonNode categorizedDishes = menuService.classifyDishes(extractedMenu, userPreferences);
+
+            // Check if classification returned an error
+            if (categorizedDishes.has("error")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(categorizedDishes);
+            }
+
+            return ResponseEntity.ok(categorizedDishes);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to process menu: " + e.getMessage()));
-        }
-    }
-    
-    /**
-     * Get recommendations based on menu text
-     */
-    @PostMapping("/recommendations")
-    public ResponseEntity<Map<String, Object>> getRecommendations(
-            @RequestBody Map<String, Object> request,
-            Authentication authentication) {
-        try {
-            String menuText = (String) request.get("menuText");
-            if (menuText == null || menuText.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Menu text is required"));
-            }
-            
-            String email = null;
-            
-            // Get user email from authentication if available
-            if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
-                email = jwt.getClaim("email");
-            }
-            
-            // Get recommendations
-            Map<String, Object> recommendations;
-            if (email != null) {
-                // Authenticated user
-                recommendations = menuService.getRecommendations(menuText, email);
-            } else {
-                // Guest user
-                Map<String, Object> guestPreferences = new HashMap<>();
-                if (request.containsKey("preferences")) {
-                    Object preferencesObj = request.get("preferences");
-                    if (preferencesObj instanceof Map) {
-                        @SuppressWarnings("unchecked")
-                        Map<String, Object> prefMap = (Map<String, Object>) preferencesObj;
-                        guestPreferences = prefMap;
-                    }
-                }
-                recommendations = menuService.getRecommendationsForGuest(menuText, guestPreferences);
-            }
-            
-            return ResponseEntity.ok(recommendations);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to get recommendations: " + e.getMessage()));
-        }
-    }
-    
-    /**
-     * Rate a recommended dish
-     */
-    @PostMapping("/rate")
-    public ResponseEntity<Map<String, Object>> rateDish(
-            @RequestBody Map<String, Object> request,
-            Authentication authentication) {
-        try {
-            // Check if user is authenticated
-            if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-                return ResponseEntity.status(401).body(Map.of("error", "Authentication required"));
-            }
-            
-            // Get user email
-            String email = jwt.getClaim("email");
-            if (email == null || email.isEmpty()) {
-                return ResponseEntity.status(401).body(Map.of("error", "Invalid authentication"));
-            }
-            
-            // Get request parameters
-            Integer dishId = (Integer) request.get("dishId");
-            Integer rating = (Integer) request.get("rating");
-            
-            if (dishId == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Dish ID is required"));
-            }
-            
-            if (rating == null || rating < 1 || rating > 5) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Rating must be between 1 and 5"));
-            }
-            
-            // Save rating
-            Map<String, Object> result = menuService.rateDish(email, dishId, rating);
-            
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to save rating: " + e.getMessage()));
-        }
-    }
-    
-    /**
-     * Get mock recommendations (for testing)
-     */
-    @GetMapping("/mock-recommendations")
-    public ResponseEntity<Map<String, Object>> getMockRecommendations(@RequestParam String menuText) {
-        try {
-            List<String> recommendations = openAIService.getMockRecommendations(menuText);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Mock recommendations generated successfully");
-            response.put("recommendations", recommendations);
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to get mock recommendations"));
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(mapper.createObjectNode().put("error", "An unexpected error occurred: " + e.getMessage()));
         }
     }
 }

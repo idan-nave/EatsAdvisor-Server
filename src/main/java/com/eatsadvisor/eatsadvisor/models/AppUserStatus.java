@@ -19,7 +19,7 @@ import java.time.Instant;
 })
 public class AppUserStatus {
     @Id
-    @ColumnDefault("nextval('app_user_status_id_seq')")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

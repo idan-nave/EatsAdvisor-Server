@@ -19,7 +19,7 @@ import java.time.Instant;
 })
 public class Flavor {
     @Id
-    @ColumnDefault("nextval('flavor_id_seq')")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

@@ -17,7 +17,7 @@ import java.time.Instant;
 })
 public class Allergy {
     @Id
-    @ColumnDefault("nextval('allergy_id_seq')")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

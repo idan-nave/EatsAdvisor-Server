@@ -17,7 +17,7 @@ import java.time.Instant;
 })
 public class Dish {
     @Id
-    @ColumnDefault("nextval('dish_id_seq')")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

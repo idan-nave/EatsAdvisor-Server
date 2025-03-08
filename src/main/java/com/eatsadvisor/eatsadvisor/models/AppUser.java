@@ -23,8 +23,7 @@ import java.util.Set;
 })
 public class AppUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "app_user_id_gen")
-    @SequenceGenerator(name = "app_user_id_gen", sequenceName = "app_user_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

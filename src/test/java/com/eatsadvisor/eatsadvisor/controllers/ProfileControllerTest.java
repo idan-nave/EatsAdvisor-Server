@@ -8,15 +8,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMockMvc
-@WebMvcTest(RecommendationController.class)
+@WebMvcTest(ProfileController.class)
 @ActiveProfiles("test")
-class RecommendationControllerTest {
+class ProfileControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    void testRecommendationController() {
+    void testCustomProfileController() {
         // TODO: Implement tests
     }
 }
