@@ -19,6 +19,7 @@ import java.time.Instant;
 })
 public class DishHistory {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ColumnDefault("nextval('dish_history_id_seq')")
     @Column(name = "id", nullable = false)
     private Integer id;

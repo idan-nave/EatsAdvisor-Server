@@ -16,6 +16,7 @@ import java.time.Instant;
 @Table(name = "profile_constraint")
 public class ProfileConstraint {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ColumnDefault("nextval('profile_constraint_id_seq')")
     @Column(name = "id", nullable = false)
     private Integer id;

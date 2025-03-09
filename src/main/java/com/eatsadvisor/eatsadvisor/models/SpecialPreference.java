@@ -16,6 +16,7 @@ import java.time.Instant;
 @Table(name = "special_preference")
 public class SpecialPreference {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ColumnDefault("nextval('special_preference_id_seq')")
     @Column(name = "id", nullable = false)
     private Integer id;

@@ -1,7 +1,7 @@
 package com.eatsadvisor.eatsadvisor.controllers;
 
 import com.eatsadvisor.eatsadvisor.services.MenuService;
-import com.eatsadvisor.eatsadvisor.services.ProfileService;
+import com.eatsadvisor.eatsadvisor.services.RecommendationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class MenuController {
     private MenuService menuService;
 
     @Autowired
-    private ProfileService profileService;
+    private RecommendationService recommendationService;
 
     @PostMapping("/upload")
     public ResponseEntity<JsonNode> uploadImage(
@@ -44,7 +44,7 @@ public class MenuController {
             }
 
             // Get user preferences if email is provided
-            Map<String, Object> userPreferences = profileService.getUserPreferencesForRecommendation(email);
+            Map<String, Object> userPreferences = recommendationService.getUserPreferencesForRecommendation(email);
 
             // Classify the extracted menu items
             JsonNode categorizedDishes = menuService.classifyDishes(extractedMenu, userPreferences);

@@ -1,8 +1,7 @@
 package com.eatsadvisor.eatsadvisor.controllers;
 
 import com.eatsadvisor.eatsadvisor.models.*;
-import com.eatsadvisor.eatsadvisor.services.AppUserService;
-import com.eatsadvisor.eatsadvisor.services.ProfileService;
+import com.eatsadvisor.eatsadvisor.services.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -16,10 +15,27 @@ public class AppUserController {
 
     private final AppUserService userService;
     private final ProfileService profileService;
+    private final ProfileAllergyService profileAllergyService;
+    private final ProfileFlavorPreferenceService profileFlavorPreferenceService;
+    private final ProfileConstraintService profileConstraintService;
+    private final SpecialPreferenceService specialPreferenceService;
+    private final DishService dishService;
 
-    public AppUserController(AppUserService userService, ProfileService profileService) {
+    public AppUserController(
+            AppUserService userService, 
+            ProfileService profileService,
+            ProfileAllergyService profileAllergyService,
+            ProfileFlavorPreferenceService profileFlavorPreferenceService,
+            ProfileConstraintService profileConstraintService,
+            SpecialPreferenceService specialPreferenceService,
+            DishService dishService) {
         this.userService = userService;
         this.profileService = profileService;
+        this.profileAllergyService = profileAllergyService;
+        this.profileFlavorPreferenceService = profileFlavorPreferenceService;
+        this.profileConstraintService = profileConstraintService;
+        this.specialPreferenceService = specialPreferenceService;
+        this.dishService = dishService;
     }
 
     /**
@@ -75,11 +91,11 @@ public class AppUserController {
             Integer profileId = profile.getId();
             
             // Get profile data
-            List<Allergy> allergies = profileService.getAllergiesByProfileId(profileId);
-            List<ProfileFlavorPreference> flavorPreferences = profileService.getFlavorPreferencesByProfileId(profileId);
-            List<ConstraintType> constraints = profileService.getConstraintsByProfileId(profileId);
-            List<SpecialPreference> specialPreferences = profileService.getSpecialPreferencesByProfileId(profileId);
-            List<DishHistory> dishHistory = profileService.getDishHistoryByProfileId(profileId);
+            List<Allergy> allergies = profileAllergyService.getAllergiesByProfileId(profileId);
+            List<ProfileFlavorPreference> flavorPreferences = profileFlavorPreferenceService.getFlavorPreferencesByProfileId(profileId);
+            List<ConstraintType> constraints = profileConstraintService.getConstraintsByProfileId(profileId);
+            List<SpecialPreference> specialPreferences = specialPreferenceService.getSpecialPreferencesByProfileId(profileId);
+            List<DishHistory> dishHistory = dishService.getDishHistoryByProfileId(profileId);
             
             // Build response
             Map<String, Object> response = new HashMap<>();
@@ -118,7 +134,7 @@ public class AppUserController {
                     return ResponseEntity.badRequest().body(Map.of("error", "Allergy ID is required"));
                 }
                 
-                ProfileAllergy profileAllergy = profileService.addAllergyToProfile(profile.getId(), allergyId);
+                ProfileAllergy profileAllergy = profileAllergyService.addAllergyToProfile(profile.getId(), allergyId);
                 
                 return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -150,7 +166,7 @@ public class AppUserController {
                 
                 Profile profile = profileOpt.get();
                 
-                profileService.removeAllergyFromProfile(profile.getId(), allergyId);
+                profileAllergyService.removeAllergyFromProfile(profile.getId(), allergyId);
                 
                 return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -191,7 +207,7 @@ public class AppUserController {
                     return ResponseEntity.badRequest().body(Map.of("error", "Preference level must be between 1 and 10"));
                 }
                 
-                ProfileFlavorPreference preference = profileService.setFlavorPreference(profile.getId(), flavorId, preferenceLevel);
+                ProfileFlavorPreference preference = profileFlavorPreferenceService.setFlavorPreference(profile.getId(), flavorId, preferenceLevel);
                 
                 return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -228,7 +244,7 @@ public class AppUserController {
                     return ResponseEntity.badRequest().body(Map.of("error", "Constraint type ID is required"));
                 }
                 
-                ProfileConstraint profileConstraint = profileService.addConstraintToProfile(profile.getId(), constraintTypeId);
+                ProfileConstraint profileConstraint = profileConstraintService.addConstraintToProfile(profile.getId(), constraintTypeId);
                 
                 return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -260,7 +276,7 @@ public class AppUserController {
                 
                 Profile profile = profileOpt.get();
                 
-                profileService.removeConstraintFromProfile(profile.getId(), constraintTypeId);
+                profileConstraintService.removeConstraintFromProfile(profile.getId(), constraintTypeId);
                 
                 return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -296,7 +312,7 @@ public class AppUserController {
                     return ResponseEntity.badRequest().body(Map.of("error", "Description is required"));
                 }
                 
-                SpecialPreference specialPreference = profileService.addSpecialPreference(profile.getId(), description);
+                SpecialPreference specialPreference = specialPreferenceService.addSpecialPreference(profile.getId(), description);
                 
                 return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -326,7 +342,7 @@ public class AppUserController {
                     return ResponseEntity.notFound().build();
                 }
                 
-                profileService.deleteSpecialPreference(specialPreferenceId);
+                specialPreferenceService.deleteSpecialPreference(specialPreferenceId);
                 
                 return ResponseEntity.ok(Map.of(
                     "success", true,

@@ -3,6 +3,7 @@ package com.eatsadvisor.eatsadvisor.controllers;
 import com.eatsadvisor.eatsadvisor.models.Profile;
 import com.eatsadvisor.eatsadvisor.models.AppUser;
 import com.eatsadvisor.eatsadvisor.services.ProfileService;
+import com.eatsadvisor.eatsadvisor.services.RecommendationService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +22,11 @@ import java.util.Optional;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final RecommendationService recommendationService;
 
-    public ProfileController(ProfileService profileService) {
+    public ProfileController(ProfileService profileService, RecommendationService recommendationService) {
         this.profileService = profileService;
+        this.recommendationService = recommendationService;
     }
 
     /**
@@ -121,7 +124,7 @@ public class ProfileController {
             String email = jwt.getClaim("email");
 
             // Get user preferences
-            Map<String, Object> preferences = profileService.getUserPreferencesForRecommendation(email);
+            Map<String, Object> preferences = recommendationService.getUserPreferencesForRecommendation(email);
             return ResponseEntity.ok(preferences);
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
@@ -163,8 +166,8 @@ public class ProfileController {
                 System.out.println("✅ ProfileController: Created profile for new user");
             }
 
-            // Set user preferences (This line is commented out, uncomment it when the method is implemented)
-            // profileService.setUserPreferences(email, preferences);
+            // Set user preferences
+            recommendationService.setUserPreferences(email, preferences);
 
             // Return success response
             Map<String, Object> result = new HashMap<>();
