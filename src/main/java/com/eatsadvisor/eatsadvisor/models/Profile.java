@@ -1,6 +1,7 @@
 package com.eatsadvisor.eatsadvisor.models;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;
@@ -25,6 +26,7 @@ public class Profile {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private AppUser user;
 
     @Column(name = "created_at")

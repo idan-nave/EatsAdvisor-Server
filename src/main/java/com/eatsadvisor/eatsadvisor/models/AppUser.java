@@ -3,6 +3,7 @@ package com.eatsadvisor.eatsadvisor.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -64,6 +65,7 @@ public class AppUser {
     private Set<AppUserStatus> appUserStatuses = new LinkedHashSet<>();
 
     @OneToOne(mappedBy = "user")
+    @JsonManagedReference
     private Profile profile;
 
     @OneToMany(mappedBy = "user")

@@ -1,5 +1,11 @@
 server:
   port: ${PORT:8080} # Uses Render's assigned port, defaults to 8080 locally
+  ssl:
+    key-store: eatsadvisor.p12
+    key-store-password: password
+    key-store-type: PKCS12
+    key-alias: eatsadvisor
+    enabled: true
 
 spring:
   main:
