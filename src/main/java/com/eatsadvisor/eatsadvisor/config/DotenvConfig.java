@@ -27,8 +27,8 @@ public class DotenvConfig {
         setSystemProperty("OPENAI_API_KEY", dotenv, "");
 
         // ✅ Base URLs
-        setSystemProperty("BACKEND_BASE_URL", dotenv, "http://localhost:8080");
-        setSystemProperty("FRONTEND_BASE_URL", dotenv, "http://localhost:3001");
+        setSystemProperty("BACKEND_BASE_URL", dotenv, "https://localhost:8080");
+        setSystemProperty("FRONTEND_BASE_URL", dotenv, "https://localhost:3001");
 
         System.out.println("✅ DotenvConfig: Environment variables loaded successfully!");
     }

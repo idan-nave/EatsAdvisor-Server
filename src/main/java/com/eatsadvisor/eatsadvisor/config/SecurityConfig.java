@@ -5,7 +5,6 @@ import com.eatsadvisor.eatsadvisor.repositories.ProfileRepository;
 import com.eatsadvisor.eatsadvisor.services.RefreshTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,39 +27,41 @@ public class SecurityConfig {
     private final AppUserRepository appUserRepository;
     private final ProfileRepository profileRepository;
     private final RefreshTokenService refreshTokenService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
-                         AppUserRepository appUserRepository,
-                         ProfileRepository profileRepository,
-                         RefreshTokenService refreshTokenService) {
+                          AppUserRepository appUserRepository,
+                          ProfileRepository profileRepository,
+                          RefreshTokenService refreshTokenService,
+                          OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
         this.appUserRepository = appUserRepository;
         this.profileRepository = profileRepository;
         this.refreshTokenService = refreshTokenService;
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
     }
 
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-            .csrf(csrf -> csrf.disable()) // Disable CSRF because we're using JWTs
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No sessions
-            .headers(headers -> headers
-                    .addHeaderWriter(new StaticHeadersWriter("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"))) // Enable HSTS
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow all OPTIONS requests (CORS preflight)
-                    .requestMatchers("/auth/**", "/oauth2/**", "/login/**").permitAll() // Public endpoints
-                    .requestMatchers("/api/keep-alive").permitAll() // Allow unauthenticated access to keep-alive endpoint
-                    .requestMatchers("/api/users/me").authenticated() // Requires authentication
-                    .anyRequest().authenticated()) // All other requests need authentication
-            .oauth2Login(oauth2 -> oauth2
-                    .successHandler(new OAuth2LoginSuccessHandler(
-                            appUserRepository, profileRepository, refreshTokenService)))
-            .oauth2ResourceServer(oauth2 -> oauth2
-                    .jwt(jwt -> jwt.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                    .bearerTokenResolver(new CookieBearerTokenResolver()) // Extract JWT from Cookie
-            );
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable()) // Disable CSRF because we're using JWTs
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No sessions
+                .headers(headers -> headers
+                        .addHeaderWriter(new StaticHeadersWriter("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"))) // Enable HSTS
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow all OPTIONS requests (CORS preflight)
+                        .requestMatchers("/auth/**", "/oauth2/**", "/login/**").permitAll() // Public endpoints
+                        .requestMatchers("/api/keep-alive").permitAll() // Allow unauthenticated access to keep-alive endpoint
+                        .requestMatchers("/api/users/me").authenticated() // Requires authentication
+                        .anyRequest().authenticated()) // All other requests need authentication
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2LoginSuccessHandler))
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        .bearerTokenResolver(new CookieBearerTokenResolver()) // Extract JWT from Cookie
+                );
 
-    return http.build();
-}
+        return http.build();
+    }
 
 
     @Bean

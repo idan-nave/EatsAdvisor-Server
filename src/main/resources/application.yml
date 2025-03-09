@@ -33,9 +33,8 @@ spring:
             client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET}
             scope: openid, profile, email
             authorization-grant-type: authorization_code
-            redirect-uri: "${APP_BASE_URL}/login/oauth2/code/google" # Dynamically set base URL
+            redirect-uri: "${BACKEND_BASE_URL}/login/oauth2/code/google" # Dynamically set base URL
             client-authentication-method: basic
-
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
@@ -61,5 +60,5 @@ logging:
     org.springframework.web: DEBUG
 
 app:
-  backend-base-url: ${BACKEND_BASE_URL:http://localhost:8080} # Defaults to localhost but uses Render's URL in production
-  frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:3001} # Frontend URL (defaults to localhost:3000)
+  backend-base-url: ${BACKEND_BASE_URL:https://localhost:8080} # Defaults to localhost but uses Render's URL in production
+  frontend-base-url: ${FRONTEND_BASE_URL:https://localhost:3001} # Frontend URL (defaults to localhost:3000)
