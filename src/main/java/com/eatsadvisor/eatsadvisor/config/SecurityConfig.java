@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -36,26 +37,27 @@ public class SecurityConfig {
         this.refreshTokenService = refreshTokenService;
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF because we're using JWTs
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No
-                                                                                                              // sessions
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/oauth2/**", "/login/**").permitAll()
-                        .requestMatchers("/api/users/me").authenticated()
-                        .anyRequest().authenticated())
-                .oauth2Login(oauth2 -> oauth2
-                        .successHandler(new OAuth2LoginSuccessHandler(
-                                appUserRepository, profileRepository, refreshTokenService)))
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                        .bearerTokenResolver(new CookieBearerTokenResolver()) // Extract JWT from Cookie
-                );
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+            .csrf(csrf -> csrf.disable()) // Disable CSRF because we're using JWTs
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No sessions
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow all OPTIONS requests (CORS preflight)
+                    .requestMatchers("/auth/**", "/oauth2/**", "/login/**").permitAll() // Public endpoints
+                    .requestMatchers("/api/users/me").authenticated() // Requires authentication
+                    .anyRequest().authenticated()) // All other requests need authentication
+            .oauth2Login(oauth2 -> oauth2
+                    .successHandler(new OAuth2LoginSuccessHandler(
+                            appUserRepository, profileRepository, refreshTokenService)))
+            .oauth2ResourceServer(oauth2 -> oauth2
+                    .jwt(jwt -> jwt.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                    .bearerTokenResolver(new CookieBearerTokenResolver()) // Extract JWT from Cookie
+            );
 
-        return http.build();
-    }
+    return http.build();
+}
+
 
     @Bean
     public JwtDecoder jwtDecoder() {
