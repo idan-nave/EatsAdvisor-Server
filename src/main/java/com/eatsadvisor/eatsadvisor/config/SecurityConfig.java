@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 @Configuration
 @EnableWebSecurity
@@ -42,9 +43,12 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
     http
             .csrf(csrf -> csrf.disable()) // Disable CSRF because we're using JWTs
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No sessions
+            .headers(headers -> headers
+                    .addHeaderWriter(new StaticHeadersWriter("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"))) // Enable HSTS
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow all OPTIONS requests (CORS preflight)
                     .requestMatchers("/auth/**", "/oauth2/**", "/login/**").permitAll() // Public endpoints
+                    .requestMatchers("/api/keep-alive").permitAll() // Allow unauthenticated access to keep-alive endpoint
                     .requestMatchers("/api/users/me").authenticated() // Requires authentication
                     .anyRequest().authenticated()) // All other requests need authentication
             .oauth2Login(oauth2 -> oauth2
@@ -93,6 +97,7 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
                     if ("jwt".equals(cookie.getName())) {
                         String token = cookie.getValue();
                         System.out.println("✅ JWT cookie found! Token length: " + token.length());
+                        cookie.setSecure(true); // Ensure cookie is only sent over HTTPS
                         return token;
                     }
                 }

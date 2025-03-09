@@ -108,30 +108,30 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // Set JWT as a cookie
         Cookie jwtCookie = new Cookie("jwt", jwt);
         jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(false); // We're not using HTTPS in development
+        jwtCookie.setSecure(true);
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(3600); // 1 hour
-        jwtCookie.setAttribute("SameSite", "Lax"); // Changed from None to Lax for non-HTTPS
+        jwtCookie.setAttribute("SameSite", "None");
         response.addCookie(jwtCookie);
         System.out.println("✅ OAuth2LoginSuccessHandler: Set JWT cookie");
 
         // Add a non-HttpOnly cookie for frontend detection
         Cookie jwtIndicatorCookie = new Cookie("jwt_present", "true");
         jwtIndicatorCookie.setHttpOnly(false);
-        jwtIndicatorCookie.setSecure(false); // We're not using HTTPS in development
+        jwtIndicatorCookie.setSecure(true);
         jwtIndicatorCookie.setPath("/");
         jwtIndicatorCookie.setMaxAge(3600); // 1 hour
-        jwtIndicatorCookie.setAttribute("SameSite", "Lax"); // Changed from None to Lax for non-HTTPS
+        jwtIndicatorCookie.setAttribute("SameSite", "None");
         response.addCookie(jwtIndicatorCookie);
         System.out.println("✅ OAuth2LoginSuccessHandler: Set jwt_present cookie");
 
         // Set refresh token as an HTTP-only cookie
         Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
         refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(false); // We're not using HTTPS in development
+        refreshCookie.setSecure(true);
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
-        refreshCookie.setAttribute("SameSite", "Lax"); // Changed from None to Lax for non-HTTPS
+        refreshCookie.setAttribute("SameSite", "None");
         response.addCookie(refreshCookie);
         System.out.println("✅ OAuth2LoginSuccessHandler: Set refresh_token cookie");
 
