@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8080} # Uses Render's assigned port, defaults to 8080 locally
 
 spring:
   datasource:
@@ -41,13 +41,16 @@ spring:
           jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET} # Secret key for JWT signing
 
 openai:
-  api-key: ${OPENAI_API_KEY}
+  api-key: ${OPENAI_API_KEY} # OpenAI API key
 
 logging:
   level:
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
 
+app:
+  backend-base-url: ${BACKEND_BASE_URL:http://localhost:8080} # Defaults to localhost but uses Render's URL in production
+  frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:3001} # Frontend URL (defaults to localhost:3000)

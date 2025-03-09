@@ -1,5 +1,6 @@
 package com.eatsadvisor.eatsadvisor.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -10,10 +11,13 @@ import java.util.List;
 
 @Configuration
 public class CorsConfig {
+
+    @Value("${app.frontend-base-url}")    private String frontendBaseUrl;
+
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3001"));
+        config.setAllowedOrigins(List.of(frontendBaseUrl)); // Use environment variable
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Accept"));
         config.setExposedHeaders(List.of("Set-Cookie", "Access-Control-Allow-Credentials"));

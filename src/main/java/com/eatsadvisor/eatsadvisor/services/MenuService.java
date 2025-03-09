@@ -19,7 +19,7 @@ public class MenuService {
 
     private static final String API_URL = "https://api.openai.com/v1/chat/completions";
 
-    @Value("${OPENAI_API_KEY}")
+    @Value("${openai.api-key}")
     private String apiKey;
 
     private final RestTemplate restTemplate;

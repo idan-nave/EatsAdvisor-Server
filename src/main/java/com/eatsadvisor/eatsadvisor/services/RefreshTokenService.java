@@ -27,10 +27,10 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final AppUserRepository appUserRepository;
 
-    @Value("${GOOGLE_OAUTH_CLIENT_ID}")
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
-    @Value("${GOOGLE_OAUTH_CLIENT_SECRET}")
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleClientSecret;
 
     public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, AppUserRepository appUserRepository) {

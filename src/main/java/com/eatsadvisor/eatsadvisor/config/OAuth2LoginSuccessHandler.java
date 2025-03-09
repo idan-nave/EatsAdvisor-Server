@@ -5,6 +5,8 @@ import com.eatsadvisor.eatsadvisor.models.Profile;
 import com.eatsadvisor.eatsadvisor.repositories.AppUserRepository;
 import com.eatsadvisor.eatsadvisor.repositories.ProfileRepository;
 import com.eatsadvisor.eatsadvisor.services.RefreshTokenService;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -28,7 +30,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final ProfileRepository profileRepository;
     private final RefreshTokenService refreshTokenService;
 
-    public OAuth2LoginSuccessHandler(AppUserRepository appUserRepository, ProfileRepository profileRepository, RefreshTokenService refreshTokenService) {
+    @Value("${app.backend-base-url}")    private String backendBaseUrl;
+    @Value("${app.frontend-base-url}")    private String frontendBaseUrl;
+
+    public OAuth2LoginSuccessHandler(AppUserRepository appUserRepository, ProfileRepository profileRepository,
+            RefreshTokenService refreshTokenService) {
         this.appUserRepository = appUserRepository;
         this.profileRepository = profileRepository;
         this.refreshTokenService = refreshTokenService;
@@ -38,11 +44,13 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
+
+
         System.out.println("✅ OAuth2LoginSuccessHandler: Authentication successful");
 
         if (!(authentication.getPrincipal() instanceof OAuth2User)) {
             System.out.println("❌ OAuth2LoginSuccessHandler: Principal is not an OAuth2User");
-            response.sendRedirect("http://localhost:3001/login?error=invalid_authentication");
+            response.sendRedirect(frontendBaseUrl+"/login?error=invalid_authentication");
             return;
         }
 
@@ -129,6 +137,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         // Redirect directly to frontend dashboard
         System.out.println("✅ OAuth2LoginSuccessHandler: Redirecting to dashboard");
-        response.sendRedirect("http://localhost:3001/dashboard");
+        response.sendRedirect(frontendBaseUrl+"/dashboard");
     }
 }

@@ -4,6 +4,8 @@ import com.eatsadvisor.eatsadvisor.services.RefreshTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,7 @@ import java.util.Map;
 public class AuthController {
 
     private final RefreshTokenService refreshTokenService;
+    @Value("${app.frontend-base-url}")    private String frontendBaseUrl;
 
     public AuthController(RefreshTokenService refreshTokenService) {
         this.refreshTokenService = refreshTokenService;
@@ -50,7 +53,7 @@ public class AuthController {
         jwtCookie.setMaxAge(3600);
         jwtCookie.setAttribute("SameSite", "Lax"); // Changed from None to Lax for non-HTTPS
         response.addCookie(jwtCookie);
-        
+
         // Add a non-HttpOnly cookie for frontend detection
         Cookie jwtIndicatorCookie = new Cookie("jwt_present", "true");
         jwtIndicatorCookie.setHttpOnly(false);
@@ -65,7 +68,7 @@ public class AuthController {
     public void loginSuccess(Authentication authentication, HttpServletResponse response) throws IOException {
         if (authentication == null || !(authentication.getPrincipal() instanceof OidcUser user)) {
             System.out.println("❌ Login failed: Authentication is null or invalid");
-            response.sendRedirect("http://localhost:3001/login");
+            response.sendRedirect(frontendBaseUrl+"/login");
             return;
         }
 
@@ -84,7 +87,7 @@ public class AuthController {
         jwtCookie.setMaxAge(3600);
         jwtCookie.setAttribute("SameSite", "Lax"); // Changed from None to Lax for non-HTTPS
         response.addCookie(jwtCookie);
-        
+
         // Add a non-HttpOnly cookie for frontend detection
         Cookie jwtIndicatorCookie = new Cookie("jwt_present", "true");
         jwtIndicatorCookie.setHttpOnly(false);
@@ -96,7 +99,7 @@ public class AuthController {
 
         System.out.println("✅ JWT Cookie set successfully!");
 
-        response.sendRedirect("http://localhost:3001/dashboard");
+        response.sendRedirect(frontendBaseUrl+"/dashboard");
     }
 
     @GetMapping("/logout")
@@ -114,7 +117,7 @@ public class AuthController {
         jwtCookie.setMaxAge(0);
         jwtCookie.setAttribute("SameSite", "Lax"); // Changed from None to Lax for non-HTTPS
         response.addCookie(jwtCookie);
-        
+
         // Clear the JWT indicator cookie
         Cookie jwtIndicatorCookie = new Cookie("jwt_present", "");
         jwtIndicatorCookie.setHttpOnly(false);
@@ -153,7 +156,7 @@ public class AuthController {
 
             Map<String, String> userInfo = new HashMap<>();
             userInfo.put("email", oidcUser.getEmail());
-            
+
             // Split the full name into first and last name if available
             String fullName = oidcUser.getFullName();
             if (fullName != null && !fullName.isEmpty()) {
@@ -163,17 +166,17 @@ public class AuthController {
                     userInfo.put("lastName", nameParts[1]);
                 }
             }
-            
+
             return ResponseEntity.ok(userInfo);
         }
-        
+
         // Handle JWT authentication
         if (authentication.getPrincipal() instanceof Jwt jwt) {
             System.out.println("✅ Authenticated user (JWT): " + jwt.getSubject());
-            
+
             Map<String, String> userInfo = new HashMap<>();
             userInfo.put("email", jwt.getClaimAsString("email"));
-            
+
             // Get name from JWT claims
             String fullName = jwt.getClaimAsString("name");
             if (fullName != null && !fullName.isEmpty()) {
@@ -183,7 +186,7 @@ public class AuthController {
                     userInfo.put("lastName", nameParts[1]);
                 }
             }
-            
+
             return ResponseEntity.ok(userInfo);
         }
 
