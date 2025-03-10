@@ -99,6 +99,7 @@ flyway_schema_history/
 # ===========================================
 # 🔹 DOCKER & CI/CD
 # ===========================================
+Dockerfile
 docker-compose.override.yml
 .dockerignore
 # GitHub Actions
