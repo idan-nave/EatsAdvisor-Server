@@ -102,6 +102,7 @@ flyway_schema_history/
 Dockerfile
 docker-compose.override.yml
 .dockerignore
+*.p12
 # GitHub Actions
 .github/workflows/*
 !/.github/workflows/*.yml

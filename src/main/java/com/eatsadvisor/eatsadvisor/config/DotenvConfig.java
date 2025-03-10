@@ -12,23 +12,23 @@ public class DotenvConfig {
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
         // ✅ Database Properties
-        setSystemProperty("DB_URL", dotenv, "jdbc:h2:mem:testdb");
-        setSystemProperty("DB_USERNAME", dotenv, "sa");
-        setSystemProperty("DB_PASSWORD", dotenv, "");
+        setSystemProperty("DB_URL", dotenv, null);
+        setSystemProperty("DB_USERNAME", dotenv, null);
+        setSystemProperty("DB_PASSWORD", dotenv, null);
 
         // ✅ OAuth Google Properties
         setSystemProperty("GOOGLE_OAUTH_CLIENT_ID", dotenv, null);
         setSystemProperty("GOOGLE_OAUTH_CLIENT_SECRET", dotenv, null);
 
         // ✅ JWT Secret
-        setSystemProperty("JWT_SECRET", dotenv, "default-secret");
+        setSystemProperty("JWT_SECRET", dotenv, null);
 
         // ✅ OpenAI API Key
-        setSystemProperty("OPENAI_API_KEY", dotenv, "");
+        setSystemProperty("OPENAI_API_KEY", dotenv, null);
 
         // ✅ Base URLs
-        setSystemProperty("BACKEND_BASE_URL", dotenv, "http://localhost:8080");
-        setSystemProperty("FRONTEND_BASE_URL", dotenv, "http://localhost:3001");
+        setSystemProperty("BACKEND_BASE_URL", dotenv, null);
+        setSystemProperty("FRONTEND_BASE_URL", dotenv, null);
 
         System.out.println("✅ DotenvConfig: Environment variables loaded successfully!");
     }

@@ -9,6 +9,9 @@ WORKDIR /app
 # Copy the built JAR file from the local target directory into the container
 COPY target/eatsadvisor-0.0.1-SNAPSHOT.jar app.jar
 
+# Copy the keystore file into the container
+COPY eatsadvisor.p12 /app/eatsadvisor.p12
+
 # Expose port 8080
 EXPOSE 8080
 
