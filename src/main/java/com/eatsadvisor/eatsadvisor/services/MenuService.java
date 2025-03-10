@@ -89,12 +89,13 @@ public class MenuService {
         requestBody.put("n", 1);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(apiKey);
+        headers.set("Authorization", "Bearer " + apiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(apiKey, entity, String.class);
+        String apiUrl = "https://api.openai.com/v1/chat/completions";
+        ResponseEntity<String> response = restTemplate.postForEntity(apiUrl, entity, String.class);
         System.out.println(response);
 
         if (response.getStatusCode() == HttpStatus.OK) {
@@ -211,7 +212,7 @@ public class MenuService {
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-            ResponseEntity<String> response = restTemplate.postForEntity(apiKey, entity, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity("https://api.openai.com/v1/chat/completions", entity, String.class);
             if (response.getStatusCode() == HttpStatus.OK) {
                 JsonNode root = objectMapper.readTree(response.getBody());
                 JsonNode contentNode = root.path("choices").get(0).path("message").path("content");

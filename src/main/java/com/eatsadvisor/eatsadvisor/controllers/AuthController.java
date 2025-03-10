@@ -99,7 +99,7 @@ public class AuthController {
 
         System.out.println("✅ JWT Cookie set successfully!");
 
-        response.sendRedirect(frontendBaseUrl+"/dashboard");
+        response.sendRedirect(frontendBaseUrl);
     }
 
     @GetMapping("/logout")
