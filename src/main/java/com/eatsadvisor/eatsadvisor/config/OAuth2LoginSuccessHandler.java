@@ -108,7 +108,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // Set JWT as a cookie
         Cookie jwtCookie = new Cookie("jwt", jwt);
         jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(false);
+        jwtCookie.setSecure(true);
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(3600); // 1 hour
         jwtCookie.setAttribute("SameSite", "None");
@@ -118,7 +118,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // Add a non-HttpOnly cookie for frontend detection
         Cookie jwtIndicatorCookie = new Cookie("jwt_present", "true");
         jwtIndicatorCookie.setHttpOnly(false);
-        jwtIndicatorCookie.setSecure(false);
+        jwtIndicatorCookie.setSecure(true);
         jwtIndicatorCookie.setPath("/");
         jwtIndicatorCookie.setMaxAge(3600); // 1 hour
         jwtIndicatorCookie.setAttribute("SameSite", "None");
@@ -128,7 +128,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // Set refresh token as an HTTP-only cookie
         Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
         refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(false);
+        refreshCookie.setSecure(true);
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
         refreshCookie.setAttribute("SameSite", "None");
