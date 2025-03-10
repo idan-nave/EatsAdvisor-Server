@@ -5,7 +5,7 @@ server:
     key-store-password: password
     key-store-type: PKCS12
     key-alias: eatsadvisor
-    enabled: true
+    enabled: false
 
 spring:
   main:
@@ -52,7 +52,7 @@ jwt:
   secret: ${JWT_SECRET} # Secret key for JWT signing
 
 openai:
-  api-key: ${OPENAI_API_KEY} # OpenAI API key
+  api-key: ${OPENAI_API_KEY:https://api.openai.com/v1/chat/completions} # OpenAI API key
 
 logging:
   level:
@@ -60,5 +60,5 @@ logging:
     org.springframework.web: DEBUG
 
 app:
-  backend-base-url: ${BACKEND_BASE_URL:https://localhost:8080} # Defaults to localhost but uses Render's URL in production
-  frontend-base-url: ${FRONTEND_BASE_URL:https://localhost:3001} # Frontend URL (defaults to localhost:3000)
+  backend-base-url: ${BACKEND_BASE_URL:http://localhost:8080} # Defaults to localhost but uses Render's URL in production
+  frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:3001} # Frontend URL (defaults to localhost:3000)

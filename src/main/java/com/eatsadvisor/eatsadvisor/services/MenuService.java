@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 @Service
 public class MenuService {
 
-    private static final String API_URL = "https://api.openai.com/v1/chat/completions";
-
     @Value("${openai.api-key}")
     private String apiKey;
 
@@ -96,7 +94,7 @@ public class MenuService {
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(API_URL, entity, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(apiKey, entity, String.class);
         System.out.println(response);
 
         if (response.getStatusCode() == HttpStatus.OK) {
@@ -213,7 +211,7 @@ public class MenuService {
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-            ResponseEntity<String> response = restTemplate.postForEntity(API_URL, entity, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(apiKey, entity, String.class);
             if (response.getStatusCode() == HttpStatus.OK) {
                 JsonNode root = objectMapper.readTree(response.getBody());
                 JsonNode contentNode = root.path("choices").get(0).path("message").path("content");
